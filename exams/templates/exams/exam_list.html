@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список экзаменов</title>
+    <link rel="stylesheet" href="{% static 'exams/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>СВ, ВФ, ДН, ЕЕ, ПК  группа 241-91</h1> 
+        </header>
+        
+        <div style="margin-bottom: 20px;">
+            <form method="get" action="{% url 'exam_list' %}" style="display: flex;">
+                <input type="text" name="q" placeholder="Поиск по названию, студентам или группам..." value="{{ request.GET.q|default:'' }}" style="flex-grow: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                <button type="submit" class="btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">Найти</button>
+            </form>
+            <div style="text-align: right; margin-top: 10px;">
+                <a href="{% url 'group_list' %}" class="btn" style="background-color: #8e44ad; margin-right: 10px;">Группы</a>
+                <a href="{% url 'exam_create' %}" class="btn">Добавить экзамен</a>
+            </div>
+        </div>
+
+        {% if exams %}
+        <div class="exam-grid">
+            {% for exam in exams %}
+            <div class="exam-card">
+                {% if exam.image %}
+                    <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="exam-image">
+                {% else %}
+                    <div class="exam-image" style="display: flex; align-items: center; justify-content: center; color: #aaa; background: #eee;">Нет фото</div>
+                {% endif %}
+                
+                <div class="exam-content">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h2 class="exam-title" style="margin: 0; padding-right: 10px;">{{ exam.title }}</h2>
+                        <a href="{% url 'exam_edit' key=exam.pk %}" style="text-decoration: none; font-size: 1.2em;" title="Редактировать">✏️</a>
+                    </div>
+                    <span class="exam-date">📅 {{ exam.date|date:"d.m.Y H:i" }}</span>
+                    
+                    <p style="margin-bottom: 5px;"><strong>Участники:</strong></p>
+                    <ul class="user-list">
+                        {# Display Groups first #}
+                        {% for group in exam.groups.all %}
+                             <li style="font-weight: bold; background-color: #f8f9fa;">🎓 Группа: {{ group.name }}</li>
+                             {% for user in group.user_set.all %}
+                                <li style="padding-left: 20px; font-size: 0.9em;">👤 {{ user.email|default:user.username }}</li>
+                             {% endfor %}
+                        {% endfor %}
+
+                        {# Display individual users #}
+                        {% for user in exam.users.all %}
+                        <li>👤 {{ user.email|default:user.username }}</li>
+                        {% endfor %}
+
+                        {% if not exam.users.all and not exam.groups.all %}
+                        <li style="color: #999; font-style: italic;">Нет участников</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="empty-state">
+                <p>Экзаменов не найдено.</p>
+                {% if request.GET.q %}
+                <p><a href="{% url 'exam_list' %}" style="color: var(--primary-color);">Сбросить поиск</a></p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

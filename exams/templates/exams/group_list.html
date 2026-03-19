@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список групп</title>
+    <link rel="stylesheet" href="{% static 'exams/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Управление группами</h1>
+            <div class="actions">
+                <a href="{% url 'exam_list' %}" class="btn" style="background-color: #95a5a6; margin-right: 10px;">← На главную</a>
+                <a href="{% url 'group_create' %}" class="btn">Создать группу</a>
+            </div>
+        </header>
+
+        {% if groups %}
+        <div class="exam-grid">
+            {% for group in groups %}
+            <div class="exam-card">
+                <div class="exam-content">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h2 class="exam-title" style="margin: 0; padding-right: 10px;">{{ group.name }}</h2>
+                        <a href="{% url 'group_edit' pk=group.pk %}" style="text-decoration: none; font-size: 1.2em;" title="Редактировать">✏️</a>
+                    </div>
+                    
+                    <p><strong>Студенты в группе:</strong></p>
+                    <ul class="user-list">
+                        {% for user in group.user_set.all %}
+                        <li>👤 {{ user.email|default:user.username }}</li>
+                        {% empty %}
+                        <li style="color: #999; font-style: italic;">Нет студентов</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="empty-state">
+                <p>Групп пока нет.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

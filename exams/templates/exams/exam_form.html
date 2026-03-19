@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default:"Добавить экзамен" }}</title>
+    <link rel="stylesheet" href="{% static 'exams/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ title|default:"Добавить новый экзамен" }}</h1>
+        </header>
+
+        <div class="form-container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <span class="help-text">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <div class="error" style="color: red; font-size: 0.8em;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <div class="actions">
+                    <a href="{% if back_url %}{% url back_url %}{% else %}{% url 'exam_list' %}{% endif %}" class="btn" style="background-color: #95a5a6; margin-right: 10px;">Отмена</a>
+                    <button type="submit" class="btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
